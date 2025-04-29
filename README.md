@@ -260,3 +260,6 @@ You've learned how to compare the performance of the model with the previous ver
 
 Send a link to your repository on GitHub to your teacher.
 <!-- Triggering CI on pull request -->
+## Release Tags
+
+- **v1.0-pre-regression**: Baseline before adding the performance-regression guard (initial working state).
