@@ -2,37 +2,45 @@ name: CI on pull request
 
 on:
   pull_request:
-    types: [opened, reopened]
+    types: [opened, synchronize, reopened]
 
 jobs:
   check_code:
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
 
+    steps:
+      # 1) grab your code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 2) install Python
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.x'
 
+      # 3) install all your requirements
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      # 4) generate the data inside CI
       - name: Generate dataset
         run: |
-          mkdir data
+          mkdir -p data
           python util/generate.py
 
+      # 5) make a models/ folder so your tests can write the model
       - name: Create models directory
-        run: mkdir models
+        run: mkdir -p models
 
-      - name: Test with pytest
+      # 6) finally run your pytest suite (including the regression guard)
+      - name: Run tests with pytest
         run: |
           pip install pytest pytest-cov
           pytest tests.py \
             --doctest-modules \
             --junitxml=junit/test-results.xml \
-            --cov=com --cov-report=xml --cov-report=html
+            --cov=com \
+            --cov-report=xml:junit/coverage.xml
